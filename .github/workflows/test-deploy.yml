@@ -30,7 +30,7 @@ jobs:
                   distribution: "adopt"
 
             - name: Cache
-              uses: actions/cache@v2.1.6
+              uses: actions/cache@v4
               with:
                   path: /home/runner/.m2/repository
                   key: ${{ runner.os }}-${{ hashFiles('pom.xml') }}
@@ -52,7 +52,7 @@ jobs:
                   distribution: "adopt"
 
             - name: Cache
-              uses: actions/cache@v2.1.6
+              uses: actions/cache@v4
               with:
                   path: /home/runner/.m2/repository
                   key: ${{ runner.os }}-${{ hashFiles('pom.xml') }}
