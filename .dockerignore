@@ -3,7 +3,6 @@
 .idea
 .mvn
 readme-assets
-resources
 scripts
 target
 .gitignore

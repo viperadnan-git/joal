@@ -1,0 +1,12 @@
+services:
+  joal:
+    image: joal
+    build: .
+    ports:
+      - 8000:8000
+    environment:
+      - JOAL_UI_PATH_PREFIX=prefix
+      - JOAL_UI_SECRET_TOKEN=secret
+      - PORT=8000
+    volumes:
+      - ./resources:/data
