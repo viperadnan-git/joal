@@ -12,10 +12,10 @@ RUN mvn -B --quiet package -DskipTests=true \
 # Actual joal image with jre only
 FROM eclipse-temurin:11.0.13_8-jre
 
-LABEL name="joal"
-LABEL maintainer="joal.contact@gmail.com"
-LABEL url="https://github.com/anthonyraymond/joal"
-LABEL vcs-url="https://github.com/anthonyraymond/joal"
+LABEL name="Adnan Ahmad"
+LABEL maintainer="viperadnan@gmail.com"
+LABEL url="https://github.com/viperadnan-git/joal"
+LABEL vcs-url="https://github.com/viperadnan-git/joal"
 
 WORKDIR /joal/
 
