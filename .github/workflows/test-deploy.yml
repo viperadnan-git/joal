@@ -2,11 +2,15 @@ name: Test & deploy
 
 on:
     push:
-        branches: [master]
+        branches:
+            - main
+            - staging
         tags:
             - "**"
     pull_request:
-        branches: [master]
+        branches:
+            - main
+            - staging
     workflow_dispatch:
 
 jobs:
