@@ -23,7 +23,7 @@
     "numwant": 200,
     "numwantOnStop": 0,
     "requestHeaders": [
-        { "name": "User-Agent", "value": "Deluge/2.2.0 libtorrent/1.2.15.0" },
+        { "name": "User-Agent", "value": "Deluge/2.2.0 libtorrent/2.0.11.0" },
         { "name": "Accept-Encoding", "value": "gzip" },
         { "name": "Connection", "value": "close" }
     ]
