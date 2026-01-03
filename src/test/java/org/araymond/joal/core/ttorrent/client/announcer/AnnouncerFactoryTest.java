@@ -21,7 +21,8 @@ public class AnnouncerFactoryTest {
     @Test
     public void shouldCreate() {
         final AnnounceDataAccessor announceDataAccessor = mock(AnnounceDataAccessor.class);
-        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), mock(AppConfiguration.class));
+        final AppConfiguration appConfig = mock(AppConfiguration.class);
+        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), () -> appConfig);
 
         final MockedTorrent torrent = mock(MockedTorrent.class);
         given(torrent.getAnnounceList()).willReturn(list(list(URI.create("http://localhost"))));
@@ -33,7 +34,8 @@ public class AnnouncerFactoryTest {
     @Test
     public void createThrowsIfTorrentContainsNoValidURIs() {
         final AnnounceDataAccessor announceDataAccessor = mock(AnnounceDataAccessor.class);
-        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), mock(AppConfiguration.class));
+        final AppConfiguration appConfig = mock(AppConfiguration.class);
+        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), () -> appConfig);
 
         assertThatThrownBy(() -> announcerFactory.create(mock(MockedTorrent.class)))
                 .isInstanceOf(NoMoreUriAvailableException.class);

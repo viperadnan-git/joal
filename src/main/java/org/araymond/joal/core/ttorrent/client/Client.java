@@ -19,6 +19,7 @@ import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
 import org.springframework.context.ApplicationEventPublisher;
 
+import javax.inject.Provider;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Slf4j
 public class Client implements TorrentFileChangeAware, ClientFacade {
-    private final AppConfiguration appConfig;
+    private final Provider<AppConfiguration> appConfigProvider;
     private final TorrentFileProvider torrentFileProvider;
     private final ApplicationEventPublisher eventPublisher;
     private AnnouncerExecutor announcerExecutor;
@@ -50,14 +51,14 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private Thread thread;
     private volatile boolean stop = true;
 
-    Client(final AppConfiguration appConfig, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor,
+    Client(final Provider<AppConfiguration> appConfigProvider, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor,
            final DelayQueue<AnnounceRequest> delayQueue, final AnnouncerFactory announcerFactory, final ApplicationEventPublisher eventPublisher) {
-        Preconditions.checkNotNull(appConfig, "AppConfiguration must not be null");
+        Preconditions.checkNotNull(appConfigProvider, "AppConfiguration Provider must not be null");
         Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
         Preconditions.checkNotNull(delayQueue, "DelayQueue must not be null");
         Preconditions.checkNotNull(announcerFactory, "AnnouncerFactory must not be null");
         this.eventPublisher = eventPublisher;
-        this.appConfig = appConfig;
+        this.appConfigProvider = appConfigProvider;
         this.torrentFileProvider = torrentFileProvider;
         this.announcerExecutor = announcerExecutor;
         this.delayQueue = delayQueue;
@@ -96,7 +97,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
         // start off by populating our state with the max concurrent torrents:
         Lock lock = this.lock.writeLock();
-        for (int i = 0; i < this.appConfig.getSimultaneousSeed(); i++) {
+        for (int i = 0; i < this.appConfigProvider.get().getSimultaneousSeed(); i++) {
             try {
                 lock.lock();
                 this.addTorrentFromDirectory();
@@ -178,7 +179,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onNoMorePeers(final InfoHash infoHash) {
-        if (!this.appConfig.isKeepTorrentWithZeroLeechers()) {
+        if (!this.appConfigProvider.get().isKeepTorrentWithZeroLeechers()) {
             this.torrentFileProvider.moveToArchiveFolder(infoHash);
         }
     }
@@ -209,7 +210,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     public void onTorrentFileAdded(final MockedTorrent torrent) {
         this.eventPublisher.publishEvent(new TorrentFileAddedEvent(torrent));
 
-        if (!this.stop && this.currentlySeedingAnnouncers.size() < this.appConfig.getSimultaneousSeed()) {
+        if (!this.stop && this.currentlySeedingAnnouncers.size() < this.appConfigProvider.get().getSimultaneousSeed()) {
             Lock lock = this.lock.writeLock();
             try {
                 lock.lock();

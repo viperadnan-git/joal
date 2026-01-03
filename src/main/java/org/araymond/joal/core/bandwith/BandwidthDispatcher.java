@@ -168,6 +168,16 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     /**
+     * Force an immediate refresh of the bandwidth based on the current configuration.
+     * This should be called when the configuration is updated to apply new min/max upload rates.
+     */
+    public void refreshBandwidthImmediately() {
+        log.info("Forcing immediate bandwidth refresh due to configuration change");
+        this.refreshCurrentBandwidth();
+        this.threadLoopCounter = 0;  // Reset the counter so the next scheduled refresh is in 20 minutes
+    }
+
+    /**
      * Update the values of the {@code speedMap}, introducing change to the current torrent speeds.
      */
     @VisibleForTesting

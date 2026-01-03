@@ -4,6 +4,7 @@ import org.araymond.joal.core.config.AppConfiguration;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import javax.inject.Provider;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,17 +16,17 @@ public class RandomSpeedProviderTest {
     private static final long MIN_UPLOAD_RATE = 100L;
     private static final long MAX_UPLOAD_RATE = 200L;
 
-    private AppConfiguration mockedConf() {
+    private Provider<AppConfiguration> mockedConfProvider() {
         final AppConfiguration conf = mock(AppConfiguration.class);
         Mockito.doReturn(MIN_UPLOAD_RATE).when(conf).getMinUploadRate();
         Mockito.doReturn(MAX_UPLOAD_RATE).when(conf).getMaxUploadRate();
 
-        return conf;
+        return () -> conf;
     }
 
     @Test
     public void shouldProvideValueWithinRange() {
-        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConf());
+        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConfProvider());
         for (int i = 0; i < 50; i++) {
             speedProvider.refresh();
             assertThat(speedProvider.getCurrentSpeed() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
@@ -35,14 +36,14 @@ public class RandomSpeedProviderTest {
     @Test
     public void shouldReturnRandomSpeedAfterBuild() {
         // no call to refresh before call to get
-        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConf());
+        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConfProvider());
 
         assertThat(speedProvider.getCurrentSpeed() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
     }
 
     @Test
     public void shouldRefreshSpeed() {
-        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConf());
+        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConfProvider());
 
         final Set<Long> recordedSpeeds = IntStream.range(1, 10)
                 .mapToObj(i -> {

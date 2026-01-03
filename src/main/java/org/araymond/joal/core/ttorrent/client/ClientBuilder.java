@@ -11,9 +11,11 @@ import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecuto
 import org.araymond.joal.core.ttorrent.client.announcer.response.*;
 import org.springframework.context.ApplicationEventPublisher;
 
+import javax.inject.Provider;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClientBuilder {
-    private AppConfiguration appConfiguration;
+    private Provider<AppConfiguration> appConfigurationProvider;
     private TorrentFileProvider torrentFileProvider;
     private BandwidthDispatcher bandwidthDispatcher;
     private AnnouncerFactory announcerFactory;
@@ -24,8 +26,8 @@ public final class ClientBuilder {
         return new ClientBuilder();
     }
 
-    public ClientBuilder withAppConfiguration(final AppConfiguration appConfiguration) {
-        this.appConfiguration = appConfiguration;
+    public ClientBuilder withAppConfigurationProvider(final Provider<AppConfiguration> appConfigurationProvider) {
+        this.appConfigurationProvider = appConfigurationProvider;
         return this;
     }
 
@@ -62,7 +64,7 @@ public final class ClientBuilder {
 
         final AnnouncerExecutor announcerExecutor = new AnnouncerExecutor(announceResponseCallback);
 
-        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor,
+        final Client client = new Client(this.appConfigurationProvider, this.torrentFileProvider, announcerExecutor,
                 this.delayQueue, this.announcerFactory, this.eventPublisher);
         announceResponseCallback.appendHandler(new ClientNotifier(client));
 

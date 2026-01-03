@@ -74,11 +74,12 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         return conf;
     }
 
-    // TODO: verify that the new config ends up under this.config after saving new!
     public void saveNewConf(final AppConfiguration conf) {
         try {
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(joalConfFile.toFile(), conf);
-            appEventPublisher.publishEvent(new ConfigurationIsInDirtyStateEvent(conf));
+            this.config = conf;  // Update in-memory config immediately
+            log.info("Configuration has been updated and reloaded");
+            appEventPublisher.publishEvent(new ConfigHasBeenLoadedEvent(conf));
         } catch (final IOException e) {
             log.error("Failed to write new configuration file", e);
             throw new IllegalStateException(e);

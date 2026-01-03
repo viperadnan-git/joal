@@ -118,21 +118,21 @@ public class SeedManager {
         }
         this.seeding = true;
 
-        final AppConfiguration appConfig = this.configProvider.init();
+        this.configProvider.init();
         this.appEventPublisher.publishEvent(new ListOfClientFilesEvent(this.listClientFiles()));
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.generateNewClient();
 
-        this.bandwidthDispatcher = new BandwidthDispatcher(5000, new RandomSpeedProvider(appConfig));  // TODO: move interval to config
+        this.bandwidthDispatcher = new BandwidthDispatcher(5000, new RandomSpeedProvider(this.configProvider));  // TODO: move interval to config
         this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.appEventPublisher));
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, connectionHandler);
 
         this.client = ClientBuilder.builder()
-                .withAppConfiguration(appConfig)
+                .withAppConfigurationProvider(this.configProvider)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
-                .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient, appConfig))
+                .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient, this.configProvider))
                 .withEventPublisher(this.appEventPublisher)
                 .withDelayQueue(new DelayQueue<>())
                 .build();
@@ -143,6 +143,10 @@ public class SeedManager {
 
     public void saveNewConfiguration(final AppConfiguration config) {
         this.configProvider.saveNewConf(config);
+        // Immediately apply the new upload rate settings
+        if (this.bandwidthDispatcher != null) {
+            this.bandwidthDispatcher.refreshBandwidthImmediately();
+        }
     }
 
     public void saveTorrentToDisk(final String name, final byte[] bytes) {
