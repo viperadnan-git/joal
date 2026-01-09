@@ -17,7 +17,8 @@ public class BeanConfig {
 
     @Bean
     public SeedManager seedManager(@Value("${joal-conf}") final String joalConfFolder,
+                                   @Value("${joal.default-client:deluge-2.2.0.client}") final String defaultClient,
                                    final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        return new SeedManager(joalConfFolder, mapper, publisher);
+        return new SeedManager(joalConfFolder, mapper, publisher, defaultClient);
     }
 }

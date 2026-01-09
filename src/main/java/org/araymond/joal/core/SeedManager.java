@@ -67,10 +67,10 @@ public class SeedManager {
     private ClientFacade client;
 
     public SeedManager(final String joalConfRootPath, final ObjectMapper mapper,
-                       final ApplicationEventPublisher appEventPublisher) throws IOException {
+                       final ApplicationEventPublisher appEventPublisher, final String defaultClient) throws IOException {
         this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfRootPath));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
-        this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, appEventPublisher);
+        this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, appEventPublisher, defaultClient);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath);
         this.appEventPublisher = appEventPublisher;
 

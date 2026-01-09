@@ -29,11 +29,13 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     private final ObjectMapper objectMapper;
     private AppConfiguration config;
     private final ApplicationEventPublisher appEventPublisher;
+    private final String defaultClient;
 
     public JoalConfigProvider(final ObjectMapper objectMapper, final SeedManager.JoalFoldersPath joalFoldersPath,
-                              final ApplicationEventPublisher appEventPublisher) throws FileNotFoundException {
+                              final ApplicationEventPublisher appEventPublisher, final String defaultClient) throws FileNotFoundException {
         this.objectMapper = objectMapper;
         this.appEventPublisher = appEventPublisher;
+        this.defaultClient = defaultClient;
 
         this.joalConfFile = joalFoldersPath.getConfDirRootPath().resolve(CONF_FILE_NAME);
         if (!isRegularFile(joalConfFile)) {
@@ -41,6 +43,9 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         }
 
         log.debug("App configuration file will be searched for in [{}]", joalConfFile.toAbsolutePath());
+        if (defaultClient != null && !defaultClient.isBlank()) {
+            log.info("Default client override from environment: {}", defaultClient);
+        }
     }
 
     public AppConfiguration init() {
@@ -59,7 +64,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
 
     @VisibleForTesting
     AppConfiguration loadConfiguration() {
-        final AppConfiguration conf;
+        AppConfiguration conf;
         try {
             log.debug("Reading json configuration from [{}]...", joalConfFile.toAbsolutePath());
             conf = objectMapper.readValue(joalConfFile.toFile(), AppConfiguration.class);
@@ -67,6 +72,18 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         } catch (final IOException e) {
             log.error("Failed to read configuration file", e);
             throw new IllegalStateException(e);
+        }
+
+        if (defaultClient != null && !defaultClient.isBlank()) {
+            log.info("Overriding client from config with default: {}", defaultClient);
+            conf = new AppConfiguration(
+                    conf.getMinUploadRate(),
+                    conf.getMaxUploadRate(),
+                    conf.getSimultaneousSeed(),
+                    defaultClient,
+                    conf.isKeepTorrentWithZeroLeechers(),
+                    conf.getUploadRatioTarget()
+            );
         }
 
         log.info("App configuration has been successfully loaded");
