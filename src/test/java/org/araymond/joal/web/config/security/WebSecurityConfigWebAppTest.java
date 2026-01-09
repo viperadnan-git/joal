@@ -57,6 +57,11 @@ public class WebSecurityConfigWebAppTest {
 
     @RestController
     public static class TestWebUiController {
+        @RequestMapping(path = "/", method = RequestMethod.GET)
+        public String rootCtrl() {
+            return "";
+        }
+
         @RequestMapping(path = "/ui/", method = RequestMethod.GET)
         public String mockedCtrl() {
             return "";
