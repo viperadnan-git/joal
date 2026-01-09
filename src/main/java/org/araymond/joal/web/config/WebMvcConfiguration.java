@@ -9,22 +9,21 @@ import org.springframework.web.servlet.config.annotation.*;
 // Do not use @EnableWebMvc as it will remove all the default springboot config.
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
-    private final String[] RESOURCE_LOCATIONS = new String[]{"classpath:/public/"};
 
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
-        if (!registry.hasMappingForPattern("/ui/**")) {
-            registry.addResourceHandler("/ui/**")
-                    .addResourceLocations(RESOURCE_LOCATIONS);
-        }
+        registry.addResourceHandler("/ui/**")
+                .addResourceLocations("classpath:/public/");
     }
 
     @Override
     public void addViewControllers(final ViewControllerRegistry registry) {
-        // The webui passes the credentials alongs with ui call, redirect them as well
-        registry.addRedirectViewController("/ui", "ui/").setKeepQueryParams(true);
-        registry.addViewController("/ui/").setViewName("forward:index.html");
+        // Redirect root to /ui/
+        registry.addRedirectViewController("/", "/ui/");
+        // The webui passes the credentials along with ui call, redirect them as well
+        registry.addRedirectViewController("/ui", "/ui/").setKeepQueryParams(true);
+        // Forward /ui/ to serve index.html
+        registry.addViewController("/ui/").setViewName("forward:/ui/index.html");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        //super.addViewControllers(registry);
     }
 }

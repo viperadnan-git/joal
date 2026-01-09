@@ -25,4 +25,4 @@ COPY ./resources /data
 # Use a shell form entrypoint to allow environment variable expansion at runtime
 ENTRYPOINT ["/bin/sh", "-c"]
 
-CMD ["java -jar /joal/joal.jar --joal-conf=/data --spring.main.web-environment=true --server.port=${PORT} --joal.ui.path.prefix=${JOAL_UI_PATH_PREFIX} --joal.ui.secret-token=${JOAL_UI_SECRET_TOKEN}"]
+CMD ["java -jar /joal/joal.jar --joal-conf=/data --spring.main.web-environment=true --server.port=${PORT} --joal.ui.secret-token=${JOAL_UI_SECRET_TOKEN}"]

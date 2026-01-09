@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -45,7 +44,6 @@ import static org.mockito.Mockito.verify;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
                 "spring.main.web-environment=true",
-                "joal.ui.path.prefix=" + TestConstant.UI_PATH_PREFIX,
                 "joal.ui.secret-token=" + TestConstant.UI_SECRET_TOKEN
         }
 )
@@ -83,7 +81,7 @@ public class AuthChannelInterceptorAdapterWebAppTest {
         stompHeaders.add(AuthChannelInterceptorAdapter.USERNAME_HEADER, "john");
         stompHeaders.add(AuthChannelInterceptorAdapter.TOKEN_HEADER, TestConstant.UI_SECRET_TOKEN);
 
-        stompClient.connect("ws://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX, new WebSocketHttpHeaders(), stompHeaders, new StompSessionHandlerAdapter() {
+        stompClient.connect("ws://localhost:" + port + "/ws", new WebSocketHttpHeaders(), stompHeaders, new StompSessionHandlerAdapter() {
         }).get(10, TimeUnit.SECONDS);
 
         verify(authenticatorService, times(1)).getAuthenticatedOrFail("john", TestConstant.UI_SECRET_TOKEN);

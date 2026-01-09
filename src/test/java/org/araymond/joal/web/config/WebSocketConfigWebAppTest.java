@@ -1,6 +1,5 @@
 package org.araymond.joal.web.config;
 
-import org.araymond.joal.TestConstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,8 +40,7 @@ import static org.mockito.Mockito.*;
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
-                "spring.main.web-environment=true",
-                "joal.ui.path.prefix=" + TestConstant.UI_PATH_PREFIX
+                "spring.main.web-environment=true"
         }
 )
 @Import({WebSocketConfigWebAppTest.TestStompMappings.class, WebSocketConfigWebAppTest.Dd.class})
@@ -117,17 +115,17 @@ public class WebSocketConfigWebAppTest {
     }
 
     @Test
-    public void shouldBeAbleToConnectToAppPrefix() throws InterruptedException, ExecutionException, TimeoutException {
+    public void shouldBeAbleToConnectToWsEndpoint() throws InterruptedException, ExecutionException, TimeoutException {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
-        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX, new StompSessionHandlerAdapter() {
+        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/ws", new StompSessionHandlerAdapter() {
         }).get(1000, TimeUnit.SECONDS);
 
         assertThat(stompSession.isConnected()).isTrue();
     }
 
     @Test
-    public void shouldNotBeAbleToConnectWithoutAppPrefix() {
+    public void shouldNotBeAbleToConnectToRootPath() {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
         assertThatThrownBy(() ->
@@ -142,7 +140,7 @@ public class WebSocketConfigWebAppTest {
     public void shouldMapDestinationToMessageMappingWithDestinationPrefix() throws InterruptedException, ExecutionException, TimeoutException {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
-        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX, new StompSessionHandlerAdapter() {
+        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/ws", new StompSessionHandlerAdapter() {
         }).get(10, TimeUnit.SECONDS);
 
         stompSession.send("/joal/global", null);
@@ -165,7 +163,7 @@ public class WebSocketConfigWebAppTest {
     public void shouldNotMapDestinationToMessageMappingWithoutDestinationPrefix() throws InterruptedException, ExecutionException, TimeoutException {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
-        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX, new StompSessionHandlerAdapter() {
+        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/ws", new StompSessionHandlerAdapter() {
         }).get(10, TimeUnit.SECONDS);
 
         stompSession.send("/global", null);

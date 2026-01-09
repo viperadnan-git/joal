@@ -9,7 +9,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
                 "spring.main.web-environment=true",
-                "joal.ui.path.prefix=" + TestConstant.UI_PATH_PREFIX,
                 "joal.ui.secret-token=" + TestConstant.UI_SECRET_TOKEN
         }
 )
@@ -59,7 +57,7 @@ public class WebSecurityConfigWebAppTest {
 
     @RestController
     public static class TestWebUiController {
-        @RequestMapping(path = TestConstant.UI_PATH_PREFIX + "/ui/", method = RequestMethod.GET)
+        @RequestMapping(path = "/ui/", method = RequestMethod.GET)
         public String mockedCtrl() {
             return "";
         }
@@ -70,35 +68,36 @@ public class WebSecurityConfigWebAppTest {
     public static class TestWebSocketConfig implements WebSocketMessageBrokerConfigurer {
         @Override
         public void registerStompEndpoints(final StompEndpointRegistry registry) {
-            registry.addEndpoint(TestConstant.UI_PATH_PREFIX).setAllowedOrigins("*");
+            registry.addEndpoint("/ws").setAllowedOrigins("*");
         }
     }
 
     @Test
-    public void shouldForbidNonPrefixedUri() {
-        assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "", String.class).getStatusCodeValue()).isEqualTo(403);
-        assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "/ui/", String.class).getStatusCodeValue()).isEqualTo(403);
+    public void shouldPermitRootUri() {
+        assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "/", String.class).getStatusCodeValue()).isEqualTo(200);
+    }
+
+    @Test
+    public void shouldForbidUnknownUri() {
         assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "/bla", String.class).getStatusCodeValue()).isEqualTo(403);
     }
 
     @Test
-    public void shouldPermitOnPrefixedUriForWebsocketHandshakeEndpoint() throws InterruptedException, ExecutionException, TimeoutException {
+    public void shouldPermitWebsocketHandshakeEndpoint() throws InterruptedException, ExecutionException, TimeoutException {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
-        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX, new StompSessionHandlerAdapter() {
+        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/ws", new StompSessionHandlerAdapter() {
         }).get(10, TimeUnit.SECONDS);
 
         assertThat(stompSession.isConnected()).isTrue();
     }
 
     @Test
-    public void shouldPermitPrefixedUriOnWebUiEndpoint() {
+    public void shouldPermitWebUiEndpoint() {
         assertThat(this.restTemplate.getForEntity(
-                "http://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX + "/ui/",
+                "http://localhost:" + port + "/ui/",
                 String.class
         ).getStatusCodeValue()).isEqualTo(200);
     }
 
 }
-
-

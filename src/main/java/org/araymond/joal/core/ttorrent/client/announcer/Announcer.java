@@ -79,11 +79,12 @@ public class Announcer implements AnnouncerFacade {
             return responseMessage;
         } catch (final Exception e) {
             this.consecutiveFails++;
+            final String errorMessage = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
             if (this.consecutiveFails >= 5) {  // TODO: move to config
-                log.warn("[{}] has failed to announce {} times in a row", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails);
+                log.warn("[{}] has failed to announce {} times in a row. Last error: {}", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails, errorMessage);
                 throw new TooManyAnnouncesFailedInARowException(torrent);
             } else {
-                log.info("[{}] has failed to announce {}. time", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails);
+                log.info("[{}] has failed to announce {}. time. Reason: {}", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails, errorMessage);
             }
 
             throw e;
