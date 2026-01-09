@@ -14,6 +14,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -113,6 +114,12 @@ public class ConnectionHandlerTest {
         ServerSocketChannel serverSocketChannel = null;
         try {
             serverSocket = new ServerSocket(ConnectionHandler.PORT_RANGE_START);
+        } catch (final IOException e) {
+            // Skip test if we can't bind to the first port (CI environment may not allow it)
+            assumeThat(false).as("Skipping test: cannot bind to port " + ConnectionHandler.PORT_RANGE_START + " in this environment").isTrue();
+            return;
+        }
+        try {
             serverSocketChannel = new ConnectionHandler().bindToPort();
             assertThat(serverSocketChannel.socket().getLocalPort()).isBetween(ConnectionHandler.PORT_RANGE_START, ConnectionHandler.PORT_RANGE_END);
         } catch (final IOException e) {
