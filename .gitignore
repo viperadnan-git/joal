@@ -2,7 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 dependency-reduced-pom.xml
 jack-of-all-trades.iml
-resources/torrents/*.torrent
+resources/torrents/**/*.torrent
 deploy.sh
 scripts/bittorrent-client-update-detector/tempSource/**
 
