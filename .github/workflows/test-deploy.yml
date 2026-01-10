@@ -17,6 +17,10 @@ env:
     IMAGE_NAME: ${{ github.event.repository.name }}
     PLATFORMS: linux/amd64,linux/arm64
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
     test:
         runs-on: ubuntu-latest
